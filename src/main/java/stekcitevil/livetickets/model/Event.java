@@ -1,5 +1,6 @@
 package stekcitevil.livetickets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +9,10 @@ import stekcitevil.livetickets.converter.DurationSecondsConverter;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -18,14 +22,26 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-    private String eventTitle;
-    private String organiser;
-    private LocalDate eventDate;
-    private LocalTime eventStartTime;
-    @Convert(converter = DurationSecondsConverter.class)
-    private Duration eventDurationTime;
-    private Integer ticketsCount;
-    private Integer availableTicketsCount;
-    private Double ticketPrice;
-    private String eventVenue;
+    private String name;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    private String description;
+    private List<String> images;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Ticket> tickets = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Venue eventVenue;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_organiser",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "organiser_id")
+    )
+    @JsonIgnore
+    private List<Organiser> organisers = new ArrayList<>();
 }

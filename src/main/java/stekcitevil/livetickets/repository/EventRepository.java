@@ -1,22 +1,21 @@
 package stekcitevil.livetickets.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import stekcitevil.livetickets.model.Event;
+import stekcitevil.livetickets.model.Venue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    List<Event> findByEventDateAndAvailableTicketsCountGreaterThan(LocalDate eventDate, Integer availableTicketsCount);
+    Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    List<Event> findByOrganiser(String organiser);
+    Page<Event> findByStartDateTimeAfter(LocalDateTime now, Pageable pageable);
 
-    List<Event> findByEventVenue(String eventVenue);
-
-    @Query("SELECT e FROM Event e WHERE e.availableTicketsCount <= e.ticketsCount * 0.1")
-    List<Event> findAlmostSoldOutEvents();
-
-    @Query("SELECT e FROM Event e WHERE e.availableTicketsCount = 0 ORDER BY e.ticketsCount * e.ticketPrice DESC")
-    List<Event> findSoldOutEventsOrderByRevenueDesc();
+    Page<Event> findByStartDateTimeAfterAndNameContainingIgnoreCase(LocalDateTime now, String name, Pageable pageable);
+    Boolean existsByEventVenueAndStartDateTimeBetween(Venue eventVenue, LocalDateTime startDateTime, LocalDateTime endDateTime);
 }
